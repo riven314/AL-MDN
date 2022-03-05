@@ -188,6 +188,12 @@ class MultiBoxLoss_GMM(nn.Module):
             rand_val_3 = torch.randn(conf_var_3.size(0), conf_var_3.size(1), conf_var_3.size(2))
             rand_val_4 = torch.randn(conf_var_4.size(0), conf_var_4.size(1), conf_var_4.size(2))
 
+            if self.use_gpu:
+                rand_val_1 = rand_val_1.cuda()
+                rand_val_2 = rand_val_2.cuda()
+                rand_val_3 = rand_val_3.cuda()
+                rand_val_4 = rand_val_4.cuda()
+
             batch_conf_1 = (conf_mu_1+torch.sqrt(conf_var_1)*rand_val_1).view(-1, self.num_classes)
             batch_conf_2 = (conf_mu_2+torch.sqrt(conf_var_2)*rand_val_2).view(-1, self.num_classes)
             batch_conf_3 = (conf_mu_3+torch.sqrt(conf_var_3)*rand_val_3).view(-1, self.num_classes)
@@ -284,6 +290,12 @@ class MultiBoxLoss_GMM(nn.Module):
             rand_val_2 = torch.randn(conf_var_2.size(0), conf_var_2.size(1), conf_var_2.size(2))
             rand_val_3 = torch.randn(conf_var_3.size(0), conf_var_3.size(1), conf_var_3.size(2))
             rand_val_4 = torch.randn(conf_var_4.size(0), conf_var_4.size(1), conf_var_4.size(2))
+
+            if self.use_gpu:
+                rand_val_1 = rand_val_1.cuda()
+                rand_val_2 = rand_val_2.cuda()
+                rand_val_3 = rand_val_3.cuda()
+                rand_val_4 = rand_val_4.cuda()
 
             batch_conf_1 = (conf_mu_1+torch.sqrt(conf_var_1)*rand_val_1).view(-1, self.num_classes)
             batch_conf_2 = (conf_mu_2+torch.sqrt(conf_var_2)*rand_val_2).view(-1, self.num_classes)
