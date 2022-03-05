@@ -150,6 +150,7 @@ def train(
     args,
     criterion,
 ):
+    device = torch.device("cuda:0" if torch.cuda.is_available() and args.use_cuda else "cpu")
     finish_flag = True
     while finish_flag:
         net, optimizer = load_net_optimizer_multi(cfg, args)
