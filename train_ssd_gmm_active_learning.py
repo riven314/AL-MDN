@@ -92,6 +92,7 @@ def change_loaders(
 
 def adjust_learning_rate(
     optimizer,
+    lr,
     gamma,
     step,
 ):
@@ -100,7 +101,7 @@ def adjust_learning_rate(
     # Adapted from PyTorch Imagenet example:
     # https://github.com/pytorch/examples/blob/master/imagenet/main.py
     """
-    lr = args.lr * (gamma ** (step))
+    lr = lr * (gamma ** (step))
     for param_group in optimizer.param_groups:
         param_group['lr'] = lr
 
@@ -170,7 +171,7 @@ def train(
 
             if iteration in cfg['lr_steps']:
                 step_index += 1
-                adjust_learning_rate(optimizer, args.gamma, step_index)
+                adjust_learning_rate(optimizer, args.lr, args.gamma, step_index)
             try:
                 images, targets = next(batch_iterator)
             except StopIteration:
