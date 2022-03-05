@@ -123,7 +123,7 @@ def load_net_optimizer_multi(cfg, args):
         net = nn.DataParallel(net)
         net.load_state_dict(torch.load(args.resume))
     else:
-        vgg_weights = torch.load(args.save_folder + args.basenet)
+        vgg_weights = torch.load(os.path.join(args.save_folder, args.basenet))
         print('Loading base network...')
         net.vgg.load_state_dict(vgg_weights)
     if not args.resume:
