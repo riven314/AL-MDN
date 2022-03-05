@@ -39,72 +39,6 @@ def str2bool(v):
     return v.lower() in ("yes", "true", "t", "1")
 
 
-parser = argparse.ArgumentParser(
-    description='Single Shot MultiBox Detector Training With Pytorch')
-train_set = parser.add_mutually_exclusive_group()
-parser.add_argument('--dataset', default='VOC', choices=['VOC', 'COCO'],
-                    type=str, help='VOC or COCO')
-parser.add_argument('--voc_root', default=VOC_ROOT,
-                    help='VOC dataset root directory path')
-parser.add_argument('--coco_root', default=COCO_ROOT,
-                    help='COCO dataset root directory path')
-parser.add_argument('--basenet', default='vgg16_reducedfc.pth',
-                    help='Pretrained base model')
-parser.add_argument('--batch_size', default=32, type=int,
-                    help='Batch size for training')
-parser.add_argument('--resume', default=None, type=str,
-                    help='Checkpoint state_dict file to resume training from')
-parser.add_argument('--start_iter', default=0, type=int,
-                    help='Resume training at this iter')
-parser.add_argument('--num_workers', default=8, type=int,
-                    help='Number of workers used in dataloading')
-parser.add_argument('--cuda', default=True, type=str2bool,
-                    help='Use CUDA to train model')
-parser.add_argument('--lr', '--learning-rate', default=1e-3, type=float,
-                    help='initial learning rate')
-parser.add_argument('--momentum', default=0.9, type=float,
-                    help='Momentum value for optim')
-parser.add_argument('--weight_decay', default=5e-4, type=float,
-                    help='Weight decay for SGD')
-parser.add_argument('--gamma', default=0.1, type=float,
-                    help='Gamma update for SGD')
-parser.add_argument('--save_folder', default='weights/',
-                    help='Directory for saving checkpoint models')
-parser.add_argument('--eval_save_folder', default='eval/', type=str,
-                    help='File path to save results')
-parser.add_argument('--use_cuda', default=True,
-                    help='if True use GPU, otherwise use CPU')
-parser.add_argument('--id', default=1, type=int,
-                    help='the id of the experiment')
-parser.add_argument('--top_k', default=5, type=int,
-                    help='Further restrict the number of predictions to parse')
-parser.add_argument('--confidence_threshold', default=0.01, type=float,
-                    help='Detection confidence threshold')
-args = parser.parse_args()
-
-device = torch.device("cuda:0" if torch.cuda.is_available() and args.use_cuda else "cpu")
-
-if args.dataset == 'VOC':
-    cfg = voc300_active
-else:
-    cfg = coco300_active
-
-if torch.cuda.is_available():
-    if args.cuda:
-        torch.set_default_tensor_type('torch.cuda.FloatTensor')
-    if not args.cuda:
-        print("WARNING: It looks like you have a CUDA device, but aren't " +
-              "using CUDA.\nRun with --cuda for optimal training speed.")
-        torch.set_default_tensor_type('torch.FloatTensor')
-else:
-    torch.set_default_tensor_type('torch.FloatTensor')
-
-if not os.path.exists(args.save_folder):
-    os.mkdir(args.save_folder)
-if not os.path.exists(args.eval_save_folder):
-    os.mkdir(args.eval_save_folder)
-
-
 def create_loaders():
     num_train_images = cfg['num_total_images']
     indices = list(range(num_train_images))
@@ -345,4 +279,69 @@ def main():
         net = train(labeled_set, supervised_data_loader, indices, cfg, criterion)
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+        description='Single Shot MultiBox Detector Training With Pytorch')
+    train_set = parser.add_mutually_exclusive_group()
+    parser.add_argument('--dataset', default='VOC', choices=['VOC', 'COCO'],
+                        type=str, help='VOC or COCO')
+    parser.add_argument('--voc_root', default=VOC_ROOT,
+                        help='VOC dataset root directory path')
+    parser.add_argument('--coco_root', default=COCO_ROOT,
+                        help='COCO dataset root directory path')
+    parser.add_argument('--basenet', default='vgg16_reducedfc.pth',
+                        help='Pretrained base model')
+    parser.add_argument('--batch_size', default=32, type=int,
+                        help='Batch size for training')
+    parser.add_argument('--resume', default=None, type=str,
+                        help='Checkpoint state_dict file to resume training from')
+    parser.add_argument('--start_iter', default=0, type=int,
+                        help='Resume training at this iter')
+    parser.add_argument('--num_workers', default=8, type=int,
+                        help='Number of workers used in dataloading')
+    parser.add_argument('--cuda', default=True, type=str2bool,
+                        help='Use CUDA to train model')
+    parser.add_argument('--lr', '--learning-rate', default=1e-3, type=float,
+                        help='initial learning rate')
+    parser.add_argument('--momentum', default=0.9, type=float,
+                        help='Momentum value for optim')
+    parser.add_argument('--weight_decay', default=5e-4, type=float,
+                        help='Weight decay for SGD')
+    parser.add_argument('--gamma', default=0.1, type=float,
+                        help='Gamma update for SGD')
+    parser.add_argument('--save_folder', default='weights/',
+                        help='Directory for saving checkpoint models')
+    parser.add_argument('--eval_save_folder', default='eval/', type=str,
+                        help='File path to save results')
+    parser.add_argument('--use_cuda', default=True,
+                        help='if True use GPU, otherwise use CPU')
+    parser.add_argument('--id', default=1, type=int,
+                        help='the id of the experiment')
+    parser.add_argument('--top_k', default=5, type=int,
+                        help='Further restrict the number of predictions to parse')
+    parser.add_argument('--confidence_threshold', default=0.01, type=float,
+                        help='Detection confidence threshold')
+    args = parser.parse_args()
+
+    device = torch.device("cuda:0" if torch.cuda.is_available() and args.use_cuda else "cpu")
+
+    if args.dataset == 'VOC':
+        cfg = voc300_active
+    else:
+        cfg = coco300_active
+
+    if torch.cuda.is_available():
+        if args.cuda:
+            torch.set_default_tensor_type('torch.cuda.FloatTensor')
+        if not args.cuda:
+            print("WARNING: It looks like you have a CUDA device, but aren't " +
+                "using CUDA.\nRun with --cuda for optimal training speed.")
+            torch.set_default_tensor_type('torch.FloatTensor')
+    else:
+        torch.set_default_tensor_type('torch.FloatTensor')
+
+    if not os.path.exists(args.save_folder):
+        os.mkdir(args.save_folder)
+    if not os.path.exists(args.eval_save_folder):
+        os.mkdir(args.eval_save_folder)
+    
     main()
