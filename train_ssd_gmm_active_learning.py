@@ -39,7 +39,7 @@ def str2bool(v):
     return v.lower() in ("yes", "true", "t", "1")
 
 
-def create_loaders():
+def create_loaders(cfg):
     num_train_images = cfg['num_total_images']
     indices = list(range(num_train_images))
     random.shuffle(indices)
@@ -115,7 +115,7 @@ def weights_init(m):
         m.bias.data.zero_()
 
 
-def load_net_optimizer_multi(cfg):
+def load_net_optimizer_multi(cfg, args):
     net = build_ssd_gmm('train', cfg['min_dim'], cfg['num_classes'])
 
     if args.resume:
@@ -147,11 +147,12 @@ def train(
     supervised_data_loader,
     indices,
     cfg,
+    args,
     criterion,
 ):
     finish_flag = True
     while finish_flag:
-        net, optimizer = load_net_optimizer_multi(cfg)
+        net, optimizer = load_net_optimizer_multi(cfg, args)
         net = net.train()
         loc_loss = 0
         conf_loss = 0
@@ -212,14 +213,15 @@ def train(
             finish_flag = False
     return net
 
-def main():
+def main(cfg, args):
     if args.cuda:
         cudnn.benchmark = True
     print(args)
-    supervised_dataset, supervised_data_loader, unsupervised_dataset, unsupervised_data_loader, indices, labeled_set, unlabeled_set = create_loaders()
+
+    supervised_dataset, supervised_data_loader, unsupervised_dataset, unsupervised_data_loader, indices, labeled_set, unlabeled_set = create_loaders(cfg)
     criterion = MultiBoxLoss_GMM(cfg['num_classes'], 0.5, True, 0, True, 3, 0.5, False, args.cuda)
     print(len(labeled_set), len(unlabeled_set))
-    net = train(labeled_set, supervised_data_loader, indices, cfg, criterion)
+    net = train(labeled_set, supervised_data_loader, indices, cfg, args, criterion)
 
     # # active learning loop
     for i in range(cfg['num_cycles']):
@@ -276,7 +278,7 @@ def main():
 
         args.resume = None
         args.start_iter = 0
-        net = train(labeled_set, supervised_data_loader, indices, cfg, criterion)
+        net = train(labeled_set, supervised_data_loader, indices, cfg, args, criterion)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
@@ -344,4 +346,4 @@ if __name__ == '__main__':
     if not os.path.exists(args.eval_save_folder):
         os.mkdir(args.eval_save_folder)
     
-    main()
+    main(cfg, args)
