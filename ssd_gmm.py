@@ -44,7 +44,9 @@ class SSD_GMM(nn.Module):
             self.cfg = (coco, voc512)[num_classes == 21]
         self.priorbox = PriorBox(self.cfg)
         with torch.no_grad():
-            self.priors = Variable(self.priorbox.forward())
+            device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+            self.priors = Variable(self.priorbox.forward()).to(device)
+
         self.size = size
 
         # SSD network
